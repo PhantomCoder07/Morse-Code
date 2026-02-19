@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#define total_sym 60
+struct map
+{
+    char *code;
+    char *symbol;
+};
+struct map morse[total_sym];
+void morse_codes ()
+{
+    struct map temp[total_sym]=
+    {
+        {".-", "A"}, {"-...", "B"}, {"-.-.", "C"}, {"-..", "D"},
+        {".", "E"}, {"..-.", "F"}, {"--.", "G"}, {"....", "H"},
+        {"..", "I"}, {".---", "J"}, {"-.-", "K"}, {".-..", "L"},
+        {"--", "M"}, {"-.", "N"}, {"---", "O"}, {".--.", "P"},
+        {"--.-", "Q"}, {".-.", "R"}, {"...", "S"}, {"-", "T"},
+        {"..-", "U"}, {"...-", "V"}, {".--", "W"}, {"-..-", "X"},
+        {"-.--", "Y"}, {"--..", "Z"}, {"-----", "0"}, {".----", "1"},
+        {"..---", "2"}, {"...--", "3"}, {"....-", "4"}, {".....", "5"},
+        {"-....", "6"}, {"--...", "7"}, {"---..", "8"}, {"----.", "9"},
+        {".-.-.-", "."}, {"--..--", ","}, {"..--..", "?"}, {".----.", "'"},
+        {"-..-.", "/"}, {"-.--.", "("}, {"-.--.-", ")"}, {"---...", ":"},
+        {"-...-", "="}, {".-.-.", "+"}, {"-....-", "-"}, {".-..-.", "\""},
+        {".--.-.", "@"}, {"---.", "!"}, {".-...", "&"}, {"-.-.-.", ";"},
+        {"..--.-", "_"}, {"...-..-", "$"}, {"...-.-", "End of Work"},
+        {"........", "Error"}, {"-.-.-", "Start"}, {"...-.", "Verified"}
+    };
+    for (int i=0; i<total_sym; i++)
+        morse[i]=temp[i];
+}
+void decode_word (FILE *fp, char *token)
+{
+    for (int i=0; i<total_sym; i++)
+    {
+        if (strcmp(token,morse[i].code)==0)
+        {
+            fprintf(fp,"%s",morse[i].symbol);
+            return;
+        }
+    }
+    fprintf(fp," ");
+}
+void decode_sms (FILE *fp1, FILE *fp2)
+{
+    char token[20];
+    int pos=0;
+    char c;
+    while ((c=fgetc(fp1))!=EOF)
+    {
+        if (c!=' ' && c!='/' && c!='\n' && c!='\0')
+        {
+            token[pos++]=c;
+        }
+        else
+        {
+            if (pos>0)
+            {
+                token[pos]='\0';
+                pos=0;
+                decode_word(fp2,token);
+            }
+            if (c=='/')
+            {
+                fprintf(fp2," ");
+            }
+            if (c=='\n')
+            {
+                fprintf(fp2,"\n");
+            }
+        }
+    }
+}
+bool is_valid (FILE *fp)
+{
+    char c;
+    while ((c=fgetc(fp))!=EOF)
+    {
+        if (c!=' ' && c!='.' && c!='-' && c!='/' && c!='\0' && c!='\n' && c!='\t')
+            return false;
+    }
+    return true;
+}
+int main()
+{
+    FILE *fp1,*fp2;
+    fp1 = fopen("input.txt","r");
+    fp2 = fopen("output.txt","w");
+    morse_codes();
+    if (is_valid(fp1))
+    {
+        rewind(fp1);
+        printf("Meaning of your code:\n");
+        decode_sms(fp1,fp2);
+        fclose(fp1);
+        fclose(fp2);
+        char ch;
+        fp2 = fopen("output.txt","r");
+        while (!feof(fp2))
+        {
+            ch=getc(fp2);
+            printf("%c",ch);
+        }
+        fclose(fp2);
+    }
+    else
+    {
+        fclose(fp1);
+        fclose(fp2);
+        printf("Your code is invalid\n");
+        return 0;
+    }
+    return 0;
+}
