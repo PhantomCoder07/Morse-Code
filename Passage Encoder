@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#define total_sym 60
+struct map
+{
+    char *code;
+    char *symbol;
+};
+struct map morse[total_sym];
+void morse_codes()
+{
+    struct map temp[total_sym]=
+    {
+        {".-", "A"}, {"-...", "B"}, {"-.-.", "C"}, {"-..", "D"},
+        {".", "E"}, {"..-.", "F"}, {"--.", "G"}, {"....", "H"},
+        {"..", "I"}, {".---", "J"}, {"-.-", "K"}, {".-..", "L"},
+        {"--", "M"}, {"-.", "N"}, {"---", "O"}, {".--.", "P"},
+        {"--.-", "Q"}, {".-.", "R"}, {"...", "S"}, {"-", "T"},
+        {"..-", "U"}, {"...-", "V"}, {".--", "W"}, {"-..-", "X"},
+        {"-.--", "Y"}, {"--..", "Z"}, {"-----", "0"}, {".----", "1"},
+        {"..---", "2"}, {"...--", "3"}, {"....-", "4"}, {".....", "5"},
+        {"-....", "6"}, {"--...", "7"}, {"---..", "8"}, {"----.", "9"},
+        {".-.-.-", "."}, {"--..--", ","}, {"..--..", "?"}, {".----.", "'"},
+        {"-..-.", "/"}, {"-.--.", "("}, {"-.--.-", ")"}, {"---...", ":"},
+        {"-...-", "="}, {".-.-.", "+"}, {"-....-", "-"}, {".-..-.", "\""},
+        {".--.-.", "@"}, {"---.", "!"}, {".-...", "&"}, {"-.-.-.", ";"},
+        {"..--.-", "_"}, {"...-..-", "$"}, {"...-.-", "End of Work"},
+        {"........", "Error"}, {"-.-.-", "Start"}, {"...-.", "Verified"}
+    };
+    for (int i=0; i<total_sym; i++)
+        morse[i]=temp[i];
+}
+void encode_sms (FILE *fp1, FILE *fp2)
+{
+    char c;
+    while ((c=fgetc(fp1))!=EOF)
+    {
+        c=toupper(c);
+        if (c==' ')
+        {
+            fprintf(fp2,"/ ");
+            continue;
+        }
+        if (c=='\n')
+        {
+            fprintf(fp2,"\n");
+            continue;
+        }
+        char temp[2];
+        temp[0]=c;
+        temp[1]='\0';
+        bool f=false;
+        for (int j=0; j<total_sym; j++)
+        {
+            if (strcmp(morse[j].symbol,temp)==0)
+            {
+                fprintf(fp2,"%s ",morse[j].code);
+                f=true;
+                break;
+            }
+        }
+        if (!f)
+            fprintf(fp2," ");
+    }
+}
+int main()
+{
+    FILE *fp1,*fp2;
+    fp1 = fopen("input.txt","r");
+    fp2 = fopen("output.txt","w");
+    printf("Meaning of your code:\n");
+    morse_codes();
+    encode_sms(fp1,fp2);
+    fclose(fp1);
+    fclose(fp2);
+    char ch;
+    fp2 = fopen("output.txt","r");
+    while (!feof(fp2))
+    {
+        ch=getc(fp2);
+        printf("%c",ch);
+    }
+    fclose(fp2);
+    return 0;
+}
