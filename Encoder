@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#define total_sym 60
+struct map
+{
+    char *code;
+    char *symbol;
+};
+struct map morse[total_sym];
+void morse_codes()
+{
+    struct map temp[total_sym]=
+    {
+        {".-", "A"}, {"-...", "B"}, {"-.-.", "C"}, {"-..", "D"},
+        {".", "E"}, {"..-.", "F"}, {"--.", "G"}, {"....", "H"},
+        {"..", "I"}, {".---", "J"}, {"-.-", "K"}, {".-..", "L"},
+        {"--", "M"}, {"-.", "N"}, {"---", "O"}, {".--.", "P"},
+        {"--.-", "Q"}, {".-.", "R"}, {"...", "S"}, {"-", "T"},
+        {"..-", "U"}, {"...-", "V"}, {".--", "W"}, {"-..-", "X"},
+        {"-.--", "Y"}, {"--..", "Z"}, {"-----", "0"}, {".----", "1"},
+        {"..---", "2"}, {"...--", "3"}, {"....-", "4"}, {".....", "5"},
+        {"-....", "6"}, {"--...", "7"}, {"---..", "8"}, {"----.", "9"},
+        {".-.-.-", "."}, {"--..--", ","}, {"..--..", "?"}, {".----.", "'"},
+        {"-..-.", "/"}, {"-.--.", "("}, {"-.--.-", ")"}, {"---...", ":"},
+        {"-...-", "="}, {".-.-.", "+"}, {"-....-", "-"}, {".-..-.", "\""},
+        {".--.-.", "@"}, {"---.", "!"}, {".-...", "&"}, {"-.-.-.", ";"},
+        {"..--.-", "_"}, {"...-..-", "$"}, {"...-.-", "End of Work"},
+        {"........", "Error"}, {"-.-.-", "Start"}, {"...-.", "Verified"}
+    };
+    for (int i=0; i<total_sym; i++)
+        morse[i]=temp[i];
+}
+void encode_sms (char *sms)
+{
+    int l=strlen(sms);
+    for (int i=0; i<l; i++)
+    {
+        char c=toupper(sms[i]);
+        if (c==' ')
+        {
+            printf("/ ");
+            continue;
+        }
+        char temp[2];
+        temp[0]=c;
+        temp[1]='\0';
+        bool f=false;
+        for (int j=0; j<total_sym; j++)
+        {
+            if (strcmp(morse[j].symbol,temp)==0)
+            {
+                printf("%s ",morse[j].code);
+                f=true;
+                break;
+            }
+        }
+        if (!f)
+            printf(" ");
+    }
+    printf("\n");
+}
+int main()
+{
+    char s[2000];
+    morse_codes();
+    printf("Enter text to encode:\n");
+    fgets(s,sizeof(s),stdin);
+    s[strcspn(s,"\n")]='\0';
+    printf("Morse Code:\n");
+    encode_sms(s);
+    return 0;
+}
