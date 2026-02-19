@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#define total_sym 60
+struct map
+{
+    char *code;
+    char *symbol;
+};
+struct map morse[total_sym];
+void morse_codes ()
+{
+    struct map temp[total_sym]=
+    {
+        {".-", "A"}, {"-...", "B"}, {"-.-.", "C"}, {"-..", "D"},
+        {".", "E"}, {"..-.", "F"}, {"--.", "G"}, {"....", "H"},
+        {"..", "I"}, {".---", "J"}, {"-.-", "K"}, {".-..", "L"},
+        {"--", "M"}, {"-.", "N"}, {"---", "O"}, {".--.", "P"},
+        {"--.-", "Q"}, {".-.", "R"}, {"...", "S"}, {"-", "T"},
+        {"..-", "U"}, {"...-", "V"}, {".--", "W"}, {"-..-", "X"},
+        {"-.--", "Y"}, {"--..", "Z"}, {"-----", "0"}, {".----", "1"},
+        {"..---", "2"}, {"...--", "3"}, {"....-", "4"}, {".....", "5"},
+        {"-....", "6"}, {"--...", "7"}, {"---..", "8"}, {"----.", "9"},
+        {".-.-.-", "."}, {"--..--", ","}, {"..--..", "?"}, {".----.", "'"},
+        {"-..-.", "/"}, {"-.--.", "("}, {"-.--.-", ")"}, {"---...", ":"},
+        {"-...-", "="}, {".-.-.", "+"}, {"-....-", "-"}, {".-..-.", "\""},
+        {".--.-.", "@"}, {"---.", "!"}, {".-...", "&"}, {"-.-.-.", ";"},
+        {"..--.-", "_"}, {"...-..-", "$"}, {"...-.-", "End of Work"},
+        {"........", "Error"}, {"-.-.-", "Start"}, {"...-.", "Verified"}
+    };
+    for (int i=0; i<total_sym; i++)
+        morse[i]=temp[i];
+}
+void decode_word (char *token)
+{
+    for (int i=0; i<total_sym; i++)
+    {
+        if (strcmp(token,morse[i].code)==0)
+        {
+            printf("%s",morse[i].symbol);
+            return;
+        }
+    }
+    printf(" ");
+}
+void decode_sms (char *sms)
+{
+    char token[20];
+    int pos=0;
+    for (int i=0; ; i++)
+    {
+        if (sms[i]!=' ' && sms[i]!='/' && sms[i]!='\n' && sms[i]!='\0')
+        {
+            token[pos++]=sms[i];
+        }
+        else
+        {
+            if (pos>0)
+            {
+                token[pos]='\0';
+                pos=0;
+                decode_word(token);
+            }
+            if (sms[i]=='/')
+            {
+                printf(" ");
+            }
+            if (sms[i]=='/' && sms[i+1]=='/')
+            {
+                printf("\n");
+                i++;
+            }
+            if (sms[i]=='\0' || sms[i]=='\n')
+                break;
+        }
+    }
+    printf("\n");
+}
+bool is_valid (char *s)
+{
+    for (int i=0; s[i]!='\n'; i++)
+    {
+        if (s[i]!=' ' && s[i]!='.' && s[i]!='-' && s[i]!='/')
+            return false;
+    }
+    return true;
+}
+int main()
+{
+    char s[2000];
+    printf("Enter your code:\n");
+    fgets(s,sizeof(s),stdin);
+    if (is_valid(s))
+    {
+        printf("Meaning of your code:\n");
+        morse_codes();
+        decode_sms(s);
+    }
+    else
+        printf("Your massage is invalid\n");
+    return 0;
+}
